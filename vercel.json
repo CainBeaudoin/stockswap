@@ -1,18 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "api/page.js": {
-      "includeFiles": "index.html"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/api/page"
-    },
-    {
-      "source": "/index.html",
-      "destination": "/api/page"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
