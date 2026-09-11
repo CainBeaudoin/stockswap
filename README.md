@@ -2,39 +2,42 @@
 
 Interactive frontend prototype for a stock-pack experience with two primary views:
 
-- **Packs** — spend a simulated USDC balance to open a $50 market pack, reveal a fractional stock position, then keep it or immediately sell it back to USDC.
-- **Portfolio** — aggregate fractional holdings by ticker, watch simulated live price movement, and partially or fully buy/sell positions.
+- **Packs** — spend a simulated USDC balance to open a $50 stock pack. The page is intentionally minimal: pack, odds and open action.
+- **Portfolio** — aggregate fractional holdings by ticker, inspect an expanded stock chart, and partially or fully sell holdings back to simulated USDC.
 
 ## Run locally
 
-No build step or dependencies are required. Open `index.html` directly in a browser or serve the repository with any static file server.
+Open `index.html` directly in a modern browser or serve the repository from any static web server. The prototype loads Three.js and TradingView Lightweight Charts from public CDNs.
 
-## Prototype behavior
+## Current prototype behavior
 
-- Starting balance: **$1,000 USDC**
+- Starting simulated balance: **$1,000 USDC**
 - Pack price: **$50 USDC**
-- Demo prize range: **$30–$1,000**
-- Tracked demo tickers: AAPL, NVDA, TSLA, AMZN, MSFT, META, GOOGL
-- Fractional shares are calculated from the revealed dollar value and current demo price.
+- Displayed demo odds:
+  - Common — 60% — $30–$45
+  - Uncommon — 25% — $50–$75
+  - Rare — 10% — $100–$180
+  - Epic — 4% — $250–$500
+  - Legendary — 1% — $1,000
+- Pack opening uses an anticipation sequence with rarity scanning, escalating Web Audio sound design, particles and rarity-specific visual intensity.
+- Revealed stock positions render as interactive **Three.js 3D cards**.
+- A reveal can be kept in the portfolio or sold immediately to simulated USDC.
 - Multiple wins in the same ticker are combined into one portfolio position.
-- Buy/sell controls support percentage shortcuts and MAX.
-- Prices use an in-browser random walk purely to demonstrate live portfolio behavior.
+- Portfolio trading is **sell-only**. There is no stock buy control.
+- Holding rows open a dedicated detail screen with 1D / 1W / 1M / 3M / 1Y chart ranges, position stats and partial/MAX selling.
+- Prices currently use an in-browser random walk purely to demonstrate live portfolio behavior.
 
-## Prize-gating note
+## Production architecture
 
-The prototype intentionally uses a **visible inventory eligibility meter** for the Grail tier. It does not implement hidden manipulation of paid outcomes. In a production product, effective odds, inventory gates, prize eligibility and settlement rules should be clearly disclosed and auditable.
+Replace the demo adapters with production services rather than placing API keys or execution logic in the browser:
 
-## Suggested production architecture
-
-Replace the demo adapters with production services rather than putting API keys or execution logic in the browser:
-
-1. **Market data service** — Massive/Polygon WebSocket or another licensed real-time equities feed for quotes, candles and charts.
-2. **Token/asset registry** — Robinhood Chain stock-token asset metadata where applicable.
-3. **Execution service** — server-side quote + swap/order adapter. The UI should always show the executable quote, slippage and fees before confirmation.
-4. **Portfolio ledger** — authoritative backend/onchain balances, fills, cost basis and transaction history.
+1. **Market data service** — licensed real-time equities data for quotes, candles and charts.
+2. **Token/asset registry** — stock-token metadata and contract mapping where applicable.
+3. **Sell execution service** — request an executable quote server-side, disclose price/slippage/fees, then settle through the chosen stock-token or brokerage execution layer.
+4. **Portfolio ledger** — authoritative balances, fills, cost basis and transaction history.
 5. **USDC wallet/ledger** — custody or wallet abstraction appropriate to the product's jurisdiction and compliance model.
-6. **Pack service** — auditable randomness/inventory logic, prize reservation, idempotent settlement and immutable event records.
+6. **Pack service** — auditable randomness, inventory controls, prize reservation, idempotent settlement and immutable event records.
 
 ## Important
 
-This repository currently contains a **UI/product prototype only**. It does not execute real securities trades, swaps, deposits, withdrawals or real-money pack purchases.
+This repository is a **UI/product prototype only**. It does not execute real securities trades, swaps, deposits, withdrawals or real-money pack purchases. The demo uses the displayed effective odds; it does not implement undisclosed outcome manipulation.
