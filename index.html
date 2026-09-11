@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#070809" />
   <title>StockSwap</title>
   <link rel="stylesheet" href="/protocol-v2.css?v=2" />
+  <link rel="stylesheet" href="/pack-slider-v3.css?v=1" />
 </head>
 <body>
   <div class="shell">
@@ -14,9 +15,6 @@
       <nav class="nav" id="nav">
         <button class="active" data-view="packs">Packs</button>
         <button data-view="portfolio">Portfolio</button>
-        <button data-view="activity">Activity</button>
-        <button data-view="liquidity">Liquidity</button>
-        <button data-view="admin">Admin</button>
       </nav>
       <div class="wallet" id="wallet">$1,000.00 USDC</div>
     </header>
@@ -35,23 +33,22 @@
           </div>
           <aside class="pack-controls card">
             <div class="section-head"><div><small>LIVE POOL</small><h2>Open stock packs</h2></div><button class="ghost tiny" id="apiOpen">API</button></div>
-            <p class="sub">Price and effective odds adapt to available inventory. Every draw creates a public commitment before reveal.</p>
+            <p class="sub">Choose 1–10 packs. Each result is revealed one card at a time from the same auditable opening.</p>
             <div class="batch" id="batch"><button class="active" data-count="1">1</button><button data-count="5">5</button><button data-count="10">10</button></div>
             <div class="odds-list" id="oddsList"></div>
             <div class="quote-line"><span id="openCountText">1 pack</span><b id="openCost">$0.00</b></div>
             <button class="primary open-pack" id="openPack"><span>Open Pack</span><small id="openPriceButton">$0.00 USDC</small></button>
-            <div class="micro">Quote locks when you press Open. If settlement expires or exceeds slippage protection, the pack refunds automatically.</div>
+            <div class="micro">Quote locks when you press Open. If settlement expires or exceeds slippage protection, the opening refunds automatically.</div>
           </aside>
         </div>
       </section>
 
       <section class="view" id="portfolioView">
         <div class="page-head"><div><small>ACCOUNT</small><h1>Portfolio</h1><p>Fractional positions kept from packs.</p></div><div class="live"><i></i>Yahoo Finance via RapidAPI</div></div>
-        <div class="summary-grid">
+        <div class="summary-grid three">
           <div class="metric accent"><small>Total account value</small><strong id="totalValue">$0.00</strong></div>
           <div class="metric"><small>Stocks</small><strong id="stockValue">$0.00</strong></div>
           <div class="metric"><small>USDC</small><strong id="cashValue">$0.00</strong></div>
-          <div class="metric"><small>Open listings</small><strong id="listingCount">0</strong></div>
         </div>
         <div id="portfolioList" class="positions card"></div>
         <div id="portfolioDetail" class="detail hidden">
@@ -59,34 +56,9 @@
           <div class="detail-head"><div><small id="detailName">Apple Inc.</small><h2 id="detailTicker">AAPL</h2></div><div class="detail-price"><strong id="detailPrice">$0.00</strong><span id="detailDay">0.00%</span></div></div>
           <div class="detail-grid">
             <div class="chart-card card"><div class="chart-toolbar"><span>Price</span><div id="ranges"><button class="active" data-range="1D">1D</button><button data-range="1W">1W</button><button data-range="1M">1M</button><button data-range="3M">3M</button><button data-range="1Y">1Y</button></div></div><div id="chart" class="chart"></div><div class="position-stats" id="positionStats"></div></div>
-            <aside class="sell-panel card"><h3>Sell <span id="sellTicker">AAPL</span></h3><p>Instant sells are backed by the protocol liquidity reserve.</p><label>Shares to sell <span id="availableShares">0 available</span></label><div class="amount-input"><input id="sellAmount" value="0" inputmode="decimal" /><span>shares</span></div><div class="quick" id="quickSell"><button data-pct=".25">25%</button><button data-pct=".5">50%</button><button data-pct=".75">75%</button><button data-pct="1">MAX</button></div><div class="sell-quote"><div><span>Market value</span><b id="sellMarket">$0.00</b></div><div><span>Fee</span><b id="sellFee">$0.00</b></div><div><span>You receive</span><b id="sellReceive">$0.00</b></div><div><span>Reserve after</span><b id="reserveAfter">$0.00</b></div></div><button class="danger" id="sellButton" disabled>Sell</button><div class="secondary-actions"><button id="withdrawButton">Withdraw</button><button id="listButton">List</button></div><div class="micro">Withdraw/List are simulated product flows until Robinhood Chain contract execution is connected.</div></aside>
+            <aside class="sell-panel card"><h3>Sell <span id="sellTicker">AAPL</span></h3><p>Enter a custom share amount or use a quick amount.</p><label>Shares to sell <span id="availableShares">0 available</span></label><div class="amount-input"><input id="sellAmount" value="0" inputmode="decimal" /><span>shares</span></div><div class="quick" id="quickSell"><button data-pct=".25">25%</button><button data-pct=".5">50%</button><button data-pct=".75">75%</button><button data-pct="1">MAX</button></div><div class="sell-quote"><div><span>Market value</span><b id="sellMarket">$0.00</b></div><div><span>Fee</span><b id="sellFee">$0.00</b></div><div><span>You receive</span><b id="sellReceive">$0.00</b></div><div><span>Reserve after</span><b id="reserveAfter">$0.00</b></div></div><button class="danger" id="sellButton" disabled>Sell</button></aside>
           </div>
         </div>
-      </section>
-
-      <section class="view" id="activityView">
-        <div class="page-head"><div><small>AUDIT TRAIL</small><h1>Activity & Proof</h1><p>Every pack has a commitment, reveal seed, settlement state, and verification result.</p></div><button class="ghost" id="verifyAll">Verify all</button></div>
-        <div class="proof-stats summary-grid three"><div class="metric"><small>Pack events</small><strong id="activityCount">0</strong></div><div class="metric"><small>Verified</small><strong id="verifiedCount">0</strong></div><div class="metric"><small>Refunded</small><strong id="refundCount">0</strong></div></div>
-        <div class="activity-list card" id="activityList"></div>
-      </section>
-
-      <section class="view" id="liquidityView">
-        <div class="page-head"><div><small>POOL</small><h1>Liquidity</h1><p>Pre-funded liquidity backs instant stock sells and inventory deposits.</p></div><div class="status-pill">SIMULATED LP ENGINE</div></div>
-        <div class="summary-grid three"><div class="metric accent"><small>USDC reserve</small><strong id="lpReserve">$0.00</strong></div><div class="metric"><small>Stock inventory</small><strong id="lpInventoryValue">$0.00</strong></div><div class="metric"><small>Fees earned</small><strong id="lpFees">$0.00</strong></div></div>
-        <div class="two-col">
-          <div class="card panel"><div class="section-head"><div><small>INVENTORY</small><h2>Pool assets</h2></div></div><div id="inventoryTable" class="inventory-table"></div></div>
-          <div class="card panel"><div class="section-head"><div><small>PROVIDER</small><h2>Add liquidity</h2></div></div><p class="sub">Demo a partner depositing tokenized stock inventory plus USDC backing.</p><label>Ticker</label><select id="lpTicker"></select><label>Inventory value</label><div class="field-prefix"><span>$</span><input id="lpStockAmount" type="number" min="0" value="500" /></div><label>USDC backing</label><div class="field-prefix"><span>$</span><input id="lpCashAmount" type="number" min="0" value="500" /></div><button class="primary" id="addLiquidity">Add simulated liquidity</button><div class="micro">Production deposits require onchain token transfers, custody controls, sanctions/KYC checks, and contract accounting.</div></div>
-        </div>
-      </section>
-
-      <section class="view" id="adminView">
-        <div class="page-head"><div><small>PROTOCOL</small><h1>Admin</h1><p>Inventory, pricing, risk, settlement, and revenue controls.</p></div><div class="status-pill good">TRANSPARENT ODDS ON</div></div>
-        <div class="summary-grid four"><div class="metric"><small>Pack volume</small><strong id="adminVolume">$0</strong></div><div class="metric"><small>Gross fees</small><strong id="adminFees">$0</strong></div><div class="metric"><small>Sell-backs</small><strong id="adminSellbacks">$0</strong></div><div class="metric"><small>Outstanding stock</small><strong id="adminOutstanding">$0</strong></div></div>
-        <div class="two-col admin-grid">
-          <div class="card panel"><div class="section-head"><div><small>ECONOMICS</small><h2>Pricing engine</h2></div></div><label>Target protocol margin <span id="marginLabel">7%</span></label><input id="marginRange" type="range" min="0" max="20" step="1" value="7" /><label>Instant sell fee <span id="sellFeeLabel">1.0%</span></label><input id="sellFeeRange" type="range" min="0" max="5" step="0.25" value="1" /><label>Max quote drift <span id="slippageLabel">2.0%</span></label><input id="slippageRange" type="range" min="0.5" max="10" step="0.5" value="2" /></div>
-          <div class="card panel"><div class="section-head"><div><small>SETTLEMENT</small><h2>Risk controls</h2></div></div><label>Settlement timeout <span id="timeoutLabel">45 sec</span></label><input id="timeoutRange" type="range" min="15" max="180" step="15" value="45" /><label class="toggle-row"><span><b>Auto refund stale packs</b><small>Refund packs that exceed settlement timeout.</small></span><input id="autoRefund" type="checkbox" checked /></label><label class="toggle-row"><span><b>Inventory-aware odds</b><small>Reweights disclosed odds using remaining inventory.</small></span><input id="inventoryOdds" type="checkbox" checked /></label><label class="toggle-row"><span><b>Maintenance mode</b><small>Stops new openings without affecting withdrawals.</small></span><input id="maintenance" type="checkbox" /></label></div>
-        </div>
-        <div class="card panel"><div class="section-head"><div><small>ARCHITECTURE</small><h2>Production adapters</h2></div></div><div class="adapter-grid"><div><b>Market data</b><span class="ready">Connected</span><small>Yahoo Finance via RapidAPI</small></div><div><b>Robinhood Chain inventory</b><span class="mock">Adapter mocked</span><small>Replace inventory ledger with token balances/contracts.</small></div><div><b>Randomness</b><span class="mock">Commit/reveal demo</span><small>Replace simulated future-block seed with chain randomness.</small></div><div><b>Execution</b><span class="mock">Settlement mocked</span><small>Replace reserve ledger with actual DEX/market-maker quote execution.</small></div><div><b>Rewards token</b><span class="off">Disabled</span><small>No protocol token in V1 by design.</small></div></div></div>
       </section>
     </main>
   </div>
@@ -98,7 +70,18 @@
   <div class="reveal" id="reveal"><div id="particles"></div><div class="reveal-inner"><div class="scan"><small>Commit locked</small><b id="scanText">WAITING FOR FUTURE BLOCK</b></div><div class="reveal-stage"><div class="pack-mini">?</div><div class="reveal-results" id="revealResults"></div></div><div class="reveal-actions hidden" id="revealActions"><button class="primary" id="keepReveal">Keep</button><button class="ghost" id="sellReveal">Sell</button><button class="primary hidden" id="keepAllReveal">Keep all</button><button class="ghost hidden" id="sellAllReveal">Sell all</button><button class="text-button" id="verifyReveal">Verify fairness</button></div></div></div>
   <div class="toast" id="toast"></div>
 
+  <div class="legacy-hidden" aria-hidden="true">
+    <strong id="listingCount">0</strong><button id="withdrawButton"></button><button id="listButton"></button>
+    <strong id="activityCount">0</strong><strong id="verifiedCount">0</strong><strong id="refundCount">0</strong><div id="activityList"></div><button id="verifyAll"></button>
+    <strong id="lpReserve"></strong><strong id="lpInventoryValue"></strong><strong id="lpFees"></strong><div id="inventoryTable"></div><select id="lpTicker"></select><input id="lpStockAmount" value="500"><input id="lpCashAmount" value="500"><button id="addLiquidity"></button>
+    <strong id="adminVolume"></strong><strong id="adminFees"></strong><strong id="adminSellbacks"></strong><strong id="adminOutstanding"></strong>
+    <span id="marginLabel"></span><span id="sellFeeLabel"></span><span id="slippageLabel"></span><span id="timeoutLabel"></span>
+    <input id="marginRange" type="range" min="0" max="20" value="7"><input id="sellFeeRange" type="range" min="0" max="5" value="1"><input id="slippageRange" type="range" min="0.5" max="10" value="2"><input id="timeoutRange" type="range" min="15" max="180" value="45">
+    <input id="autoRefund" type="checkbox" checked><input id="inventoryOdds" type="checkbox" checked><input id="maintenance" type="checkbox">
+  </div>
+
   <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
   <script src="/protocol-v2.js?v=2"></script>
+  <script src="/pack-slider-v3.js?v=1"></script>
 </body>
 </html>
