@@ -8,9 +8,17 @@ function cleanSymbols(value = '') {
     .slice(0, 25);
 }
 
+function requestKey(req) {
+  const raw = req.headers['x-stockswap-api-key'];
+  const browserKey = Array.isArray(raw) ? raw[0] : raw;
+  return String(browserKey || process.env.RAPIDAPI_KEY || '').trim();
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-  if (!process.env.RAPIDAPI_KEY) return res.status(503).json({ error: 'Market data is not configured' });
+
+  const key = requestKey(req);
+  if (!key) return res.status(503).json({ error: 'Market data is not configured' });
 
   const symbols = cleanSymbols(req.query.symbols || '');
   if (!symbols.length) return res.status(400).json({ error: 'Provide at least one valid symbol' });
@@ -23,7 +31,7 @@ module.exports = async function handler(req, res) {
     const upstream = await fetch(url, {
       headers: {
         'x-rapidapi-host': HOST,
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY,
+        'x-rapidapi-key': key,
         'content-type': 'application/json'
       }
     });
@@ -46,7 +54,7 @@ module.exports = async function handler(req, res) {
       marketTime: q.regularMarketTime || null
     })).filter((q) => q.symbol && Number.isFinite(q.price));
 
-    res.setHeader('Cache-Control', 's-maxage=10, stale-while-revalidate=20');
+    res.setHeader('Cache-Control', req.headers['x-stockswap-api-key'] ? 'no-store' : 's-maxage=10, stale-while-revalidate=20');
     return res.status(200).json({ source: 'Yahoo Finance via RapidAPI', quotes });
   } catch (error) {
     return res.status(502).json({ error: 'Unable to reach market data provider' });
