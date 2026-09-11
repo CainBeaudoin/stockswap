@@ -50,6 +50,10 @@ The market-data integration only provides valuation/chart data. Clicking **Sell*
 
 For production, the sell button should request an executable quote from the actual execution layer, display any spread/slippage/fees, settle the transaction, and only then credit the authoritative USDC balance.
 
+## Deployment
+
+Environment variables are configured in Vercel and this commit intentionally triggers a fresh deployment so the serverless market-data routes receive the latest environment configuration.
+
 ## Important
 
 This repository is a UI/product prototype. It does not execute real securities trades, swaps, deposits, withdrawals, or real-money pack purchases. Paid pack mechanics and effective prize eligibility should be transparently disclosed and implemented with auditable backend rules.
