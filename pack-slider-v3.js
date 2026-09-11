@@ -22,7 +22,6 @@
   };
   slider.addEventListener('input',e=>syncCount(e.target.value));
 
-  // Portfolio is sell-only. Keep legacy nodes mounted for the V2 renderer, but remove them from the product surface and disable their handlers.
   const listingMetric=document.querySelector('#listingCount')?.closest('.metric');
   if(listingMetric)listingMetric.classList.add('legacy-hidden');
   const secondaryActions=document.querySelector('.secondary-actions');
@@ -42,14 +41,18 @@
   actions.insertBefore(nextButton,verifyButton);
 
   let revealIndex=0;
+  let summaryShown=false;
+
+  const rgb=hex=>{const n=parseInt(hex.slice(1),16);return`${(n>>16)&255},${(n>>8)&255},${n&255}`};
 
   function setActionVisibility(total,isLast){
     const single=total===1;
     document.querySelector('#keepReveal').classList.toggle('hidden',!single);
     document.querySelector('#sellReveal').classList.toggle('hidden',!single);
-    document.querySelector('#keepAllReveal').classList.toggle('hidden',single||!isLast);
-    document.querySelector('#sellAllReveal').classList.toggle('hidden',single||!isLast);
-    nextButton.classList.toggle('hidden',single||isLast);
+    document.querySelector('#keepAllReveal').classList.toggle('hidden',single||!summaryShown);
+    document.querySelector('#sellAllReveal').classList.toggle('hidden',single||!summaryShown);
+    nextButton.classList.toggle('hidden',single||summaryShown);
+    if(!single&&!summaryShown)nextButton.textContent=isLast?'View results':'Next card';
   }
 
   function showSequentialPrize(index){
@@ -60,6 +63,7 @@
     const rarity=RARITIES.find(r=>r.name===prize.rarity)||RARITIES[0];
     const results=document.querySelector('#revealResults');
 
+    results.classList.remove('batch-summary');
     results.classList.add('sequential');
     results.innerHTML=renderPrizeCard(prize);
     const card=results.querySelector('.prize-card');
@@ -75,15 +79,51 @@
     setActionVisibility(total,index===total-1);
   }
 
-  nextButton.onclick=async()=>{
+  function showBatchSummary(){
     const pending=state.pending;
     if(!pending?.prizes?.length)return;
+    summaryShown=true;
+    const prizes=pending.prizes;
+    const totalValue=prizes.reduce((sum,p)=>sum+p.value,0);
+    const results=document.querySelector('#revealResults');
+    results.classList.remove('sequential');
+    results.classList.add('batch-summary');
+    results.innerHTML=`
+      <div class="batch-summary-total">
+        <small>Total value won</small>
+        <strong>${money(totalValue)}</strong>
+        <span>${prizes.length} stock card${prizes.length===1?'':'s'} revealed</span>
+      </div>
+      <div class="batch-summary-grid">
+        ${prizes.map(p=>{
+          const rarity=RARITIES.find(r=>r.name===p.rarity)||RARITIES[0];
+          return `<div class="batch-mini-card" style="--mini:${rgb(rarity.color)}">
+            <span class="mini-rarity">${p.rarity}</span>
+            <b>${p.ticker}</b>
+            <span class="mini-value">${money(p.value)}</span>
+            <small>${fmt(p.shares)} shares</small>
+          </div>`;
+        }).join('')}
+      </div>`;
+    document.querySelector('#scanText').textContent=`${prizes.length} CARDS · ${money(totalValue)} TOTAL`;
+    particles(55,RARITIES.find(r=>r.name==='Legendary')?.color||'#9cff67');
+    tone(740,.22,.035);
+    setActionVisibility(prizes.length,true);
+  }
+
+  nextButton.onclick=async()=>{
+    const pending=state.pending;
+    if(!pending?.prizes?.length||summaryShown)return;
     const card=document.querySelector('#revealResults .prize-card');
     card?.classList.remove('deal-in');
     card?.classList.add('deal-out');
     tone(260,.07,.018);
     await sleep(230);
-    revealIndex=Math.min(revealIndex+1,pending.prizes.length-1);
+    if(revealIndex>=pending.prizes.length-1){
+      showBatchSummary();
+      return;
+    }
+    revealIndex+=1;
     showSequentialPrize(revealIndex);
   };
 
@@ -108,7 +148,8 @@
     const rv=document.querySelector('#reveal');
     const results=document.querySelector('#revealResults');
     revealIndex=0;
-    results.classList.remove('sequential');
+    summaryShown=false;
+    results.classList.remove('sequential','batch-summary');
     results.innerHTML='';
     rv.className='reveal open';
     document.querySelector('#scanText').textContent='COMMITMENT LOCKED';
