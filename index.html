@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/pack-slider-v3.css?v=3" />
   <link rel="stylesheet" href="/portfolio-prizes-v4.css?v=3" />
   <link rel="stylesheet" href="/portfolio-chart-v5.css?v=1" />
+  <link rel="stylesheet" href="/layout-polish-v6.css?v=1" />
 </head>
 <body>
   <div class="shell">
@@ -34,7 +35,7 @@
             </div>
           </div>
           <aside class="pack-controls card">
-            <div class="section-head"><div><small>LIVE ODDS</small><h2>Open stock packs</h2></div><button class="ghost tiny" id="apiOpen">API Key</button></div>
+            <div class="section-head"><div><small>LIVE ODDS</small><h2>Open stock packs</h2></div></div>
             <p class="sub">Choose 1–10 packs. Each result is revealed one card at a time from the same auditable opening.</p>
             <div class="batch" id="batch"><button class="active" data-count="1">1</button><button data-count="5">5</button><button data-count="10">10</button></div>
             <div class="odds-list" id="oddsList"></div>
@@ -51,14 +52,6 @@
       </section>
 
       <section class="view" id="portfolioView">
-        <div class="page-head"><div><small>ACCOUNT</small><h1>Portfolio</h1><p>Fractional positions kept from packs.</p></div><div class="live"><i></i>Yahoo Finance via RapidAPI</div></div>
-
-        <div class="api-inline card">
-          <div class="api-inline-head"><div><small>MARKET DATA API</small><h3>RapidAPI key</h3><p>Paste your key here to use live Yahoo Finance prices.</p></div><div class="api-inline-state" id="apiInlineState"><i></i><span>Using server configuration</span></div></div>
-          <div class="api-inline-controls"><input id="apiInlineInput" type="password" autocomplete="off" spellcheck="false" placeholder="Paste RapidAPI key"><button id="apiInlineShow" type="button">Show</button><button id="apiInlineSave" class="save" type="button">Save & Test</button><button id="apiInlineClear" type="button">Clear</button></div>
-          <div class="api-inline-hint">Saved only for this browser session. It is never written to GitHub.</div>
-        </div>
-
         <div class="summary-grid three">
           <div class="metric accent"><small>Total account value</small><strong id="totalValue">$0.00</strong></div>
           <div class="metric"><small>Stocks</small><strong id="stockValue">$0.00</strong></div>
@@ -67,12 +60,11 @@
 
         <section class="portfolio-performance card" id="portfolioPerformance">
           <div class="portfolio-performance-head">
-            <div><small>PERFORMANCE</small><h2>Portfolio movement</h2></div>
+            <div><h2>Performance</h2></div>
             <div class="portfolio-performance-value"><strong id="portfolioPerfValue">$0.00</strong><span id="portfolioPerfChange">$0.00 (0.00%)</span></div>
           </div>
-          <div class="portfolio-chart-toolbar"><span>Account value</span><div class="portfolio-ranges" id="portfolioRanges"><button class="active" data-range="1D">1D</button><button data-range="7D">7D</button><button data-range="30D">30D</button><button data-range="3M">3M</button><button data-range="1Y">1Y</button><button data-range="ALL">All</button></div></div>
+          <div class="portfolio-chart-toolbar"><div class="portfolio-ranges" id="portfolioRanges"><button class="active" data-range="1D">1D</button><button data-range="7D">7D</button><button data-range="30D">30D</button><button data-range="3M">3M</button><button data-range="1Y">1Y</button><button data-range="ALL">All</button></div></div>
           <div class="portfolio-chart" id="portfolioPerformanceChart"></div>
-          <div class="portfolio-performance-note">Aggregates historical market prices for your current holdings and includes the current USDC balance.</div>
         </section>
 
         <div id="portfolioList" class="positions card"></div>
@@ -83,6 +75,12 @@
             <div class="chart-card card"><div class="chart-toolbar"><span>Price</span><div id="ranges"><button class="active" data-range="1D">1D</button><button data-range="1W">1W</button><button data-range="1M">1M</button><button data-range="3M">3M</button><button data-range="1Y">1Y</button></div></div><div id="chart" class="chart"></div><div class="position-stats" id="positionStats"></div></div>
             <aside class="sell-panel card"><h3>Sell <span id="sellTicker">AAPL</span></h3><p>Enter a custom share amount or use a quick amount.</p><label>Shares to sell <span id="availableShares">0 available</span></label><div class="amount-input"><input id="sellAmount" value="0" inputmode="decimal" /><span>shares</span></div><div class="quick" id="quickSell"><button data-pct=".25">25%</button><button data-pct=".5">50%</button><button data-pct=".75">75%</button><button data-pct="1">MAX</button></div><div class="sell-quote"><div><span>Market value</span><b id="sellMarket">$0.00</b></div><div><span>Fee</span><b id="sellFee">$0.00</b></div><div><span>You receive</span><b id="sellReceive">$0.00</b></div></div><button class="danger" id="sellButton" disabled>Sell</button></aside>
           </div>
+        </div>
+
+        <div class="api-inline card">
+          <div class="api-inline-head"><div><small>MARKET DATA API</small><h3>RapidAPI key</h3><p>Paste your key here to use live Yahoo Finance prices.</p></div><div class="api-inline-state" id="apiInlineState"><i></i><span>Using server configuration</span></div></div>
+          <div class="api-inline-controls"><input id="apiInlineInput" type="password" autocomplete="off" spellcheck="false" placeholder="Paste RapidAPI key"><button id="apiInlineShow" type="button">Show</button><button id="apiInlineSave" class="save" type="button">Save & Test</button><button id="apiInlineClear" type="button">Clear</button></div>
+          <div class="api-inline-hint">Saved only for this browser session. It is never written to GitHub.</div>
         </div>
       </section>
     </main>
@@ -96,6 +94,7 @@
   <div class="toast" id="toast"></div>
 
   <div class="legacy-hidden" aria-hidden="true">
+    <button id="apiOpen"></button>
     <strong id="listingCount">0</strong><button id="withdrawButton"></button><button id="listButton"></button>
     <strong id="liquidityHero"></strong><strong id="reserveAfter"></strong>
     <strong id="activityCount">0</strong><strong id="verifiedCount">0</strong><strong id="refundCount">0</strong><div id="activityList"></div><button id="verifyAll"></button>
