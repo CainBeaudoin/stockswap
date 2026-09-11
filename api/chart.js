@@ -5,7 +5,8 @@ const RANGE_MAP = {
   '1W': { range: '5d', interval: '30m' },
   '1M': { range: '1mo', interval: '60m' },
   '3M': { range: '3mo', interval: '1d' },
-  '1Y': { range: '1y', interval: '1d' }
+  '1Y': { range: '1y', interval: '1d' },
+  'ALL': { range: 'max', interval: '1wk' }
 };
 
 function validSymbol(value = '') {
