@@ -35,11 +35,58 @@
     }).join('');
   }
 
+  function syncInlineApi(msg){
+    const active=!!apiKey();
+    const stateEl=document.querySelector('#apiInlineState');
+    const input=document.querySelector('#apiInlineInput');
+    if(!stateEl||!input)return;
+    stateEl.classList.toggle('ok',active);
+    stateEl.querySelector('span').textContent=msg||(active?'API key connected':'Using server configuration');
+    if(active&&!input.value)input.value=apiKey();
+  }
+
+  const showBtn=document.querySelector('#apiInlineShow');
+  const saveBtn=document.querySelector('#apiInlineSave');
+  const clearBtn=document.querySelector('#apiInlineClear');
+  const input=document.querySelector('#apiInlineInput');
+
+  showBtn?.addEventListener('click',()=>{
+    const showing=input.type==='text';
+    input.type=showing?'password':'text';
+    showBtn.textContent=showing?'Show':'Hide';
+  });
+
+  clearBtn?.addEventListener('click',()=>{
+    sessionStorage.removeItem('stockswap_rapidapi_key');
+    input.value='';
+    syncInlineApi('Using server configuration');
+    try{updateApiState('Using server configuration')}catch{}
+    toast('Browser API key cleared');
+  });
+
+  saveBtn?.addEventListener('click',async()=>{
+    const key=input.value.trim();
+    if(!key)return toast('Paste an API key first');
+    sessionStorage.setItem('stockswap_rapidapi_key',key);
+    saveBtn.disabled=true;
+    saveBtn.textContent='Testing…';
+    syncInlineApi('Testing API key…');
+    const ok=await refreshQuotes();
+    saveBtn.disabled=false;
+    saveBtn.textContent=ok?'Connected':'Try Again';
+    syncInlineApi(ok?'API key connected':'API test failed');
+    try{updateApiState(ok?'API key connected':'API test failed')}catch{}
+    toast(ok?'Market data connected':'API key test failed');
+    setTimeout(()=>{saveBtn.textContent='Save & Test'},1000);
+  });
+
   const originalRenderPortfolio=renderPortfolio;
   renderPortfolio=function(){
     originalRenderPortfolio();
     renderPotentialWins();
+    syncInlineApi();
   };
 
   renderPotentialWins();
+  syncInlineApi();
 })();
