@@ -1,43 +1,55 @@
 # StockSwap
 
-Interactive frontend prototype for a stock-pack experience with two primary views:
+Interactive prototype for a stock-pack experience with two views:
 
-- **Packs** — spend a simulated USDC balance to open a $50 stock pack. The page is intentionally minimal: pack, odds and open action.
-- **Portfolio** — aggregate fractional holdings by ticker, inspect an expanded stock chart, and partially or fully sell holdings back to simulated USDC.
+- **Packs** — spend a simulated USDC balance to open a $50 stock pack, watch the rarity reveal, then choose **Keep** or **Sell**.
+- **Portfolio** — aggregate fractional holdings by ticker, inspect larger price charts, and sell a custom amount or use 25% / 50% / 75% / MAX shortcuts.
 
-## Run locally
+## Market data
 
-Open `index.html` directly in a modern browser or serve the repository from any static web server. The prototype loads Three.js and TradingView Lightweight Charts from public CDNs.
+Stock quotes and historical chart bars are now routed through server-side endpoints backed by **Yahoo Finance via RapidAPI**:
+
+- `GET /api/quotes?symbols=AAPL,NVDA` → compact multi-symbol quote response.
+- `GET /api/chart?symbol=AAPL&range=1D` → historical bars for the selected chart range.
+
+The RapidAPI credential is never included in browser code. Both serverless functions read it from environment variables.
+
+### Required environment variables
+
+```bash
+RAPIDAPI_KEY=your_rotated_key
+RAPIDAPI_HOST=apidojo-yahoo-finance-v1.p.rapidapi.com
+```
+
+Use `.env.example` as the template. Do **not** commit `.env` or expose the key in `index.html`.
+
+If deploying with Vercel, add `RAPIDAPI_KEY` and `RAPIDAPI_HOST` in the project's Environment Variables settings, then redeploy. The `/api` directory is designed as Vercel serverless functions.
 
 ## Current prototype behavior
 
 - Starting simulated balance: **$1,000 USDC**
 - Pack price: **$50 USDC**
-- Displayed demo odds:
-  - Common — 60% — $30–$45
-  - Uncommon — 25% — $50–$75
-  - Rare — 10% — $100–$180
-  - Epic — 4% — $250–$500
-  - Legendary — 1% — $1,000
-- Pack opening uses an anticipation sequence with rarity scanning, escalating Web Audio sound design, particles and rarity-specific visual intensity.
-- Revealed stock positions render as interactive **Three.js 3D cards**.
-- A reveal can be kept in the portfolio or sold immediately to simulated USDC.
-- Multiple wins in the same ticker are combined into one portfolio position.
-- Portfolio trading is **sell-only**. There is no stock buy control.
-- Holding rows open a dedicated detail screen with 1D / 1W / 1M / 3M / 1Y chart ranges, position stats and partial/MAX selling.
-- Prices currently use an in-browser random walk purely to demonstrate live portfolio behavior.
+- Common — 60% — $30–$45
+- Uncommon — 25% — $50–$75
+- Rare — 10% — $100–$180
+- Epic — 4% — $250–$500
+- Legendary — 1% — $1,000
+- Pack opening uses rarity scanning, Web Audio sound design, particles and rarity-specific visual intensity.
+- Revealed positions render as interactive **Three.js 3D cards**.
+- Pack reveal actions are simply **Keep** and **Sell**.
+- Multiple wins in the same ticker combine into one portfolio position.
+- Portfolio is **sell-only**; there is no stock purchase control.
+- Sell amount starts at **0**. Users can type a custom share amount or tap **25% / 50% / 75% / MAX**.
+- Holding rows open a detailed stock screen with **1D / 1W / 1M / 3M / 1Y** chart ranges.
+- Quotes refresh approximately every 15 seconds in the prototype.
+- If the market-data endpoint is unavailable, the UI can continue displaying its seeded fallback values so the prototype remains testable.
 
-## Production architecture
+## Execution is still simulated
 
-Replace the demo adapters with production services rather than placing API keys or execution logic in the browser:
+The market-data integration only provides valuation/chart data. Clicking **Sell** currently updates the prototype's local USDC balance; it does **not** execute a real stock, stock-token, or brokerage transaction.
 
-1. **Market data service** — licensed real-time equities data for quotes, candles and charts.
-2. **Token/asset registry** — stock-token metadata and contract mapping where applicable.
-3. **Sell execution service** — request an executable quote server-side, disclose price/slippage/fees, then settle through the chosen stock-token or brokerage execution layer.
-4. **Portfolio ledger** — authoritative balances, fills, cost basis and transaction history.
-5. **USDC wallet/ledger** — custody or wallet abstraction appropriate to the product's jurisdiction and compliance model.
-6. **Pack service** — auditable randomness, inventory controls, prize reservation, idempotent settlement and immutable event records.
+For production, the sell button should request an executable quote from the actual execution layer, display any spread/slippage/fees, settle the transaction, and only then credit the authoritative USDC balance.
 
 ## Important
 
-This repository is a **UI/product prototype only**. It does not execute real securities trades, swaps, deposits, withdrawals or real-money pack purchases. The demo uses the displayed effective odds; it does not implement undisclosed outcome manipulation.
+This repository is a UI/product prototype. It does not execute real securities trades, swaps, deposits, withdrawals, or real-money pack purchases. Paid pack mechanics and effective prize eligibility should be transparently disclosed and implemented with auditable backend rules.
