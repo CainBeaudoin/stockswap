@@ -7,7 +7,7 @@
   <title>StockSwap</title>
   <link rel="stylesheet" href="/protocol-v2.css?v=2" />
   <link rel="stylesheet" href="/pack-slider-v3.css?v=2" />
-  <link rel="stylesheet" href="/portfolio-prizes-v4.css?v=2" />
+  <link rel="stylesheet" href="/portfolio-prizes-v4.css?v=3" />
 </head>
 <body>
   <div class="shell">
@@ -41,6 +41,11 @@
             <div class="micro">Quote locks when you press Open. If settlement expires or exceeds slippage protection, the opening refunds automatically.</div>
           </aside>
         </div>
+
+        <section class="potential-wins card packs-potential">
+          <div class="potential-head"><div><small>POSSIBLE HITS</small><h2>What you could pull</h2><p>Example stock wins from Legendary down to Common, using current share prices.</p></div><div class="potential-note">Examples update with market prices.</div></div>
+          <div class="prize-ladder" id="potentialWins"></div>
+        </section>
       </section>
 
       <section class="view" id="portfolioView">
@@ -57,11 +62,6 @@
           <div class="metric"><small>Stocks</small><strong id="stockValue">$0.00</strong></div>
           <div class="metric"><small>USDC</small><strong id="cashValue">$0.00</strong></div>
         </div>
-
-        <section class="potential-wins card">
-          <div class="potential-head"><div><small>POSSIBLE HITS</small><h2>What you could pull</h2><p>Example stock wins from Legendary down to Common, using current share prices.</p></div><div class="potential-note">Examples update with market prices.</div></div>
-          <div class="prize-ladder" id="potentialWins"></div>
-        </section>
 
         <div id="portfolioList" class="positions card"></div>
         <div id="portfolioDetail" class="detail hidden">
