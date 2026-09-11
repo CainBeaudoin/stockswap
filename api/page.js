@@ -35,7 +35,6 @@ const script = `
   const btn=document.createElement('button');
   btn.id='apiKeyButton';btn.className='api-key-btn';btn.type='button';btn.textContent='API';
   wallet.replaceWith(right);right.append(btn,wallet);
-  document.body.insertAdjacentHTML('beforeend',${JSON.stringify(modal)});
   const modalEl=document.querySelector('#apiKeyModal'),input=document.querySelector('#apiKeyInput'),status=document.querySelector('#apiKeyStatus'),save=document.querySelector('#apiKeySave');
   const sync=()=>{const active=!!currentKey();btn.classList.toggle('active',active);status.classList.toggle('active',active);status.querySelector('span').textContent=active?'Browser API key active':'Using server configuration'};
   const open=()=>{input.value=currentKey();modalEl.classList.add('on');modalEl.setAttribute('aria-hidden','false');sync();setTimeout(()=>input.focus(),40)};
